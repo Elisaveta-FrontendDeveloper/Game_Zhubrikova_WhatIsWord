@@ -288,7 +288,10 @@ function startRoundTimer(seconds, level) {
     gameState.roundTimeTotal = seconds;
     gameState.roundTimeRemaining = seconds;
     
-    // Обновляем отображение таймера
+    // Сбрасываем стили таймера при старте
+    resetTimerStyles(level);
+    
+    // Обновляем отображение таймера (с начальным стилем)
     updateRoundTimerDisplay(level);
     
     // Запускаем таймер
@@ -308,19 +311,54 @@ function startRoundTimer(seconds, level) {
     }, 1000);
 }
 
+function resetTimerStyles(level) {
+    let timerElement;
+    if (level === 1) {
+        timerElement = document.getElementById('round-timer-level1');
+    } else if (level === 2) {
+        timerElement = document.getElementById('round-timer-level2');
+    } else if (level === 3) {
+        timerElement = document.getElementById('round-timer-level3');
+    } else {
+        return;
+    }
+    
+    if (timerElement) {
+        timerElement.classList.remove('warning', 'danger', 'critical');
+    }
+}
+
 // Функция для обновления отображения таймера раунда
 function updateRoundTimerDisplay(level) {
     const minutes = Math.floor(gameState.roundTimeRemaining / 60);
     const seconds = gameState.roundTimeRemaining % 60;
     const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     
-    // Обновляем соответствующий элемент в зависимости от уровня
+    // Определяем элемент таймера в зависимости от уровня
+    let timerElement;
     if (level === 1) {
-        document.getElementById('round-timer-level1').textContent = `Время раунда: ${timeString}`;
+        timerElement = document.getElementById('round-timer-level1');
     } else if (level === 2) {
-        document.getElementById('round-timer-level2').textContent = `Время раунда: ${timeString}`;
+        timerElement = document.getElementById('round-timer-level2');
     } else if (level === 3) {
-        document.getElementById('round-timer-level3').textContent = `Время раунда: ${timeString}`;
+        timerElement = document.getElementById('round-timer-level3');
+    } else {
+        return;
+    }
+    
+    // Обновляем текст таймера
+    timerElement.textContent = `Время раунда: ${timeString}`;
+    
+    // Удаляем все классы состояния
+    timerElement.classList.remove('warning', 'danger', 'critical');
+    
+    // Применяем стили в зависимости от оставшегося времени
+    if (gameState.roundTimeRemaining <= 5) {
+        // Меньше 5 секунд - красный с пульсацией
+        timerElement.classList.add('critical');
+    } else if (gameState.roundTimeRemaining <= 10) {
+        // Меньше 10 секунд - оранжевый
+        timerElement.classList.add('danger');
     }
 }
 
@@ -385,6 +423,9 @@ function closeEndLevelModal() {
 }
 
 function endLevelConfirmed() {
+    // Сбрасываем стили таймера текущего уровня
+    resetTimerStyles(gameState.level);
+    
     // Останавливаем таймер раунда
     clearInterval(gameState.roundTimerInterval);
     
@@ -693,6 +734,9 @@ function updateSelectedCount() {
 
 // Проверка ответа для уровня 1
 function checkLevel1(timeExpired = false, timeExpiredMessage = "") {
+     // Сбрасываем стили таймера
+    resetTimerStyles(1);
+    
     // Останавливаем таймер раунда
     clearInterval(gameState.roundTimerInterval);
     
@@ -781,6 +825,7 @@ function checkLevel1(timeExpired = false, timeExpiredMessage = "") {
         document.getElementById('next-round-level1').classList.remove('hidden');
     }
 }
+
 
 
 // Переход к следующему раунду уровня 1
@@ -1063,6 +1108,9 @@ function resumeCardAnimation(card) {
 
 // Проверка ответа для уровня 2
 function checkLevel2(timeExpired = false, timeExpiredMessage = "") {
+     // Сбрасываем стили таймера
+    resetTimerStyles(2);
+    
     // Останавливаем таймер раунда
     clearInterval(gameState.roundTimerInterval);
     
@@ -1530,6 +1578,9 @@ function arrangeCardsInZone(zone) {
 
 // Проверка ответа для уровня 3
 function checkLevel3(timeExpired = false, timeExpiredMessage = "") {
+     // Сбрасываем стили таймера
+    resetTimerStyles(3);
+    
     // Останавливаем таймер раунда
     clearInterval(gameState.roundTimerInterval);
     

@@ -723,3 +723,45 @@ tbody tr:hover {
     50% { opacity: 0.7; }
     100% { opacity: 1; }
 }
+
+/* ===== СТИЛИ ДЛЯ ТАЙМЕРА РАУНДА ===== */
+.round-timer {
+    color: #3498db;
+    font-weight: bold;
+    padding: 4px 10px;
+    background: rgba(52, 152, 219, 0.1);
+    border-radius: 20px;
+    border: 1px solid rgba(52, 152, 219, 0.2);
+    transition: all 0.3s ease;
+}
+
+.round-timer.danger {
+    color: #f39c12;
+    background: rgba(231, 76, 60, 0.1);
+    border-color: rgba(231, 76, 60, 0.2);
+    animation: pulse 1s infinite;
+}
+
+/* Анимация пульсации для критического времени */
+@keyframes pulse-critical {
+    0% { 
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.7);
+    }
+    50% { 
+        opacity: 0.8;
+        box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+    }
+    100% { 
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+    }
+}
+
+.round-timer.critical {
+    color: #e74c3c;
+    background: rgba(231, 76, 60, 0.2);
+    border-color: #e74c3c;
+    animation: pulse-critical 1s infinite;
+    font-weight: 700;
+}

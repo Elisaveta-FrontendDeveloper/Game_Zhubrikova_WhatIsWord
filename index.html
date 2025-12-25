@@ -13,7 +13,7 @@
 <body>
     <div id="app">
         <!-- Экран заставки -->
-        <div id="splash-screenz" class="screen active">
+        <div id="splash-screen" class="screen active">
             <div class="container">
                 <h1>Что такое слово</h1>
                 <p class="subtitle">Игра на сортировку и классификацию слов по разным признакам</p>
@@ -90,6 +90,7 @@
                         <h3 id="level-title">Уровень 1: Классификация слов</h3>
                         <p id="level-description">Выберите все слова, которые относятся к категории:</p>
                         <div class="target-category" id="target-category">Животные</div>
+                        <p id="level-description">Нажмите правой кнопкой мыши на карточку, чтобы увидеть слово (- 5 штрафных баллов).</p>
                     </div>
 
                     <div class="round-info">
@@ -120,9 +121,10 @@
                 <div class="level-2-container hidden">
                     <div class="level-header">
                         <h3>Уровень 2: Слова на букву</h3>
+                        <p class="level-description">Выберите слова, начинающиеся на букву:</p>
                         <div class="target-letter" id="target-letter">А</div>
-                        <p class="level-description">Карточки движутся! Кликните, чтобы остановить и выбрать. Двойной клик - отмена
-                            выбора (-5 очков)</p>
+                        <p class="level-description">Кликните по карточке, чтобы выбрать её. Двойной клик - отмена
+                            выбора (-5 очков).</p>
                     </div>
 
                     <div class="round-info">
@@ -156,8 +158,9 @@
                 <div class="level-3-container hidden">
                     <div class="level-header">
                         <h3>Уровень 3: Распределение по количеству букв</h3>
-                        <p id="level-description">Перетащите карточки в соответствующие категории по
-                            количеству букв</p>
+                        <p id="level-description">Перетащите карточки в соответствующие блоки по
+                            количеству букв.</p>
+                        <p id="level-description">Наведите на карточку после распределения мышкой, чтобы проверить правильность выбора.</p>
                     </div>
 
                     <div class="round-info">
