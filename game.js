@@ -274,10 +274,35 @@ function startTimer() {
 }
 
 // Обновление таймера
-function updateTimerDisplay() {
-    const minutes = Math.floor(gameState.timeElapsed / 60);
-    const seconds = gameState.timeElapsed % 60;
-    document.getElementById('timer').textContent = `Время: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+function updateRoundTimerDisplay(level) {
+    const minutes = Math.floor(gameState.roundTimeRemaining / 60);
+    const seconds = gameState.roundTimeRemaining % 60;
+    const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Получаем элемент таймера в зависимости от уровня
+    let timerElement;
+    if (level === 1) {
+        timerElement = document.getElementById('round-timer-level1');
+    } else if (level === 2) {
+        timerElement = document.getElementById('round-timer-level2');
+    } else if (level === 3) {
+        timerElement = document.getElementById('round-timer-level3');
+    }
+    
+    if (timerElement) {
+        timerElement.textContent = `Время раунда: ${timeString}`;
+        
+        // Удаляем предыдущие классы стилей
+        timerElement.classList.remove('timer-warning', 'timer-danger', 'timer-pulse');
+        
+        // Меняем цвет в зависимости от оставшегося времени
+        if (gameState.roundTimeRemaining <= 3) {
+            timerElement.classList.add('timer-danger');
+            timerElement.classList.add('timer-pulse');
+        } else if (gameState.roundTimeRemaining <= 10) {
+            timerElement.classList.add('timer-warning');
+        }
+    }
 }
 
 // Запуск таймера раунда
@@ -574,6 +599,16 @@ function startLevel1() {
     document.getElementById('next-round-level1').classList.add('hidden');
     document.getElementById('check-level1').classList.remove('hidden');
     
+    // Добавляем подсказку о ПКМ под категорией
+    const levelHeader = document.querySelector('.level-1-container .level-header');
+    const hintElement = document.createElement('p');
+    hintElement.className = 'hint';
+    hintElement.style.fontSize = '0.9rem';
+    hintElement.style.color = '#7f8c8d';
+    hintElement.style.marginTop = '5px';
+    hintElement.innerHTML = '💡 <em>Подсказка: Правый клик по карточке покажет слово (штраф -5 очков)</em>';
+    levelHeader.appendChild(hintElement);
+    
     // Запускаем таймер раунда (20 секунд для уровня 1)
     startRoundTimer(20, 1);
 }
@@ -613,7 +648,7 @@ function useHint(card, index, level) {
     gameState.score = Math.max(0, gameState.score - penaltyPerHint);
     updateScoreDisplay();
 
-    showQuickMessage(`Штраф за подсказку: -${penaltyPerHint} очков`, "warning");
+    showQuickMessage(`Использована подсказка: -${penaltyPerHint} очков`, "warning");
     
     hintsUsed.add(index);
     card.classList.add('hint-used');
@@ -623,10 +658,16 @@ function useHint(card, index, level) {
 // Показать подсказку с словом
 function showWordHint(card) {
     const word = card.dataset.word;
+    const emoji = card.dataset.emoji;
     
     if (!card.dataset.isShowingHint) {
         card.dataset.isShowingHint = 'true';
-        card.innerHTML = `<div class="word-hint">${word}</div>`;
+        card.innerHTML = `
+            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                <div class="emoji" style="font-size: 1.8rem; margin-bottom: 5px;">${emoji}</div>
+                <div class="word-hint" style="font-size: 0.8rem; font-weight: bold; color: #2c3e50;">${word}</div>
+            </div>
+        `;
         card.classList.add('showing-word');
         
         setTimeout(() => {
