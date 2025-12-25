@@ -29,7 +29,8 @@ const gameState = {
     penaltyPointsLevel3: 0,
     roundTimeRemaining: 0,
     roundTimerInterval: null,
-    roundTimeTotal: 0
+    roundTimeTotal: 0,
+    difficulty: 'easy'
 };
 
 const LEVEL_CONFIG = {
@@ -48,6 +49,24 @@ const LEVEL_CONFIG = {
 };
 
 const AVAILABLE_LETTERS = ['Б', 'В', 'Д', 'З', 'К', 'Л', 'М', 'П', 'Р', 'С', 'Т', 'Ш'];
+
+const DIFFICULTY_TIMES = {
+    easy: {
+        level1: 45,    // 45 секунд на уровень 1
+        level2: 40,    // 40 секунд на уровень 2
+        level3: 60     // 60 секунд на уровень 3
+    },
+    medium: {
+        level1: 20,    // 30 секунд на уровень 1
+        level2: 25,    // 25 секунд на уровень 2
+        level3: 30     // 30 секунд на уровень 3
+    },
+    hard: {
+        level1: 7,    // 15 секунд на уровень 1
+        level2: 10,    // 15 секунд на уровень 2
+        level3: 15     // 15 секунд на уровень 3
+    }
+};
 
 const wordDictionary = [
     // Животные
@@ -175,6 +194,10 @@ function initEventListeners() {
     
     document.getElementById('confirm-end-level').addEventListener('click', endLevelConfirmed);
     document.getElementById('cancel-end-level').addEventListener('click', closeEndLevelModal);
+
+    document.getElementById('difficulty-easy').addEventListener('click', () => selectDifficulty('easy'));
+    document.getElementById('difficulty-medium').addEventListener('click', () => selectDifficulty('medium'));
+    document.getElementById('difficulty-hard').addEventListener('click', () => selectDifficulty('hard'));
 }
 
 // Загрузка рейтинга из localStorage
@@ -231,6 +254,43 @@ function validatePlayerName() {
     }
 }
 
+// Функция для выбора сложности
+function selectDifficulty(difficulty) {
+    // Убираем класс selected со всех кнопок
+    document.querySelectorAll('.difficulty-btn').forEach(btn => {
+        btn.classList.remove('selected');
+    });
+    
+    // Добавляем класс selected к выбранной кнопке
+    const selectedBtn = document.getElementById(`difficulty-${difficulty}`);
+    if (selectedBtn) {
+        selectedBtn.classList.add('selected');
+    }
+    
+    // Обновляем информацию о сложности
+    updateDifficultyInfo(difficulty);
+    
+    // Сохраняем выбранную сложность
+    gameState.difficulty = difficulty;
+}
+
+// Функция для обновления информации о сложности
+function updateDifficultyInfo(difficulty) {
+    const infoElement = document.getElementById('difficulty-info');
+    const times = DIFFICULTY_TIMES[difficulty];
+    
+    let difficultyName = '';
+    if (difficulty === 'easy') difficultyName = 'Лёгкий';
+    else if (difficulty === 'medium') difficultyName = 'Средний';
+    else if (difficulty === 'hard') difficultyName = 'Сложный';
+    
+    infoElement.innerHTML = `
+        <strong>${difficultyName}:</strong> ${times.level1} сек (уровень 1), 
+        ${times.level2} сек (уровень 2), 
+        ${times.level3} сек (уровень 3)
+    `;
+}
+
 // Начало игры
 function startGame() {
     if (!validatePlayerName()) return;
@@ -256,6 +316,8 @@ function startGame() {
     gameState.penaltyPointsLevel2 = 0;
     gameState.penaltyPointsLevel3 = 0;
     gameState.level3HintedCards.clear();
+    
+    // Сложность уже установлена через selectDifficulty()
     
     gameState.animationIntervals.forEach(interval => clearInterval(interval));
     gameState.animationIntervals = [];
@@ -615,8 +677,8 @@ function startLevel1() {
     document.getElementById('next-round-level1').classList.add('hidden');
     document.getElementById('check-level1').classList.remove('hidden');
     
-    // Запускаем таймер раунда (20 секунд для уровня 1)
-    startRoundTimer(20, 1);
+    const level1Time = DIFFICULTY_TIMES[gameState.difficulty].level1;
+    startRoundTimer(level1Time, 1);
 }
 
 // Создание карточки
@@ -1027,8 +1089,8 @@ function startLevel2() {
     document.getElementById('next-round-level2').classList.add('hidden');
     document.getElementById('check-level2').classList.remove('hidden');
     
-    // Запускаем таймер раунда (30 секунд для уровня 2)
-    startRoundTimer(30, 2);
+    const level2Time = DIFFICULTY_TIMES[gameState.difficulty].level2;
+    startRoundTimer(level2Time, 2);
 }
 
 // Обновление счетчика выбранных карточек для уровня 2
@@ -1388,8 +1450,8 @@ function startLevel3() {
     document.getElementById('next-round-level3').classList.add('hidden');
     document.getElementById('check-level3').classList.remove('hidden');
     
-    // Запускаем таймер раунда (30 секунд для уровня 3)
-    startRoundTimer(30, 3);
+    const level3Time = DIFFICULTY_TIMES[gameState.difficulty].level3;
+    startRoundTimer(level3Time, 3);
 }
 
 function getLetterEnding(count) {
@@ -1735,12 +1797,14 @@ function savePlayerResult(status) {
         time: gameState.timeElapsed,
         date: new Date().toLocaleDateString('ru-RU'),
         timestamp: new Date().getTime(),
-        status: status
+        status: status,
+        difficulty: gameState.difficulty // Добавлено: сохраняем сложность
     };
     
     loadLeaderboard();
     leaderboard.push(playerResult);
     
+    // Сортируем по очкам, затем по времени
     leaderboard.sort((a, b) => b.score - a.score || a.time - b.time);
     
     if (leaderboard.length > 10) {
@@ -1760,6 +1824,10 @@ function showResults() {
     const seconds = gameState.timeElapsed % 60;
     document.getElementById('final-time').textContent = 
         `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    
+    // Обновляем сложность
+    const difficultyText = getDifficultyText(gameState.difficulty);
+    document.getElementById('final-difficulty').textContent = difficultyText;
     
     let statusText = "Не завершено";
     if (gameState.levelsCompleted === 3) {
@@ -1782,15 +1850,23 @@ function updateLeaderboardTable() {
     leaderboard.forEach((player, index) => {
         const row = document.createElement('tr');
         
-        if (player.name === gameState.playerName && 
+        // Проверяем, является ли эта запись текущим игроком
+        const isCurrentPlayer = (
+            player.name === gameState.playerName && 
             player.score === gameState.score && 
-            player.time === gameState.timeElapsed) {
+            player.time === gameState.timeElapsed &&
+            player.difficulty === gameState.difficulty
+        );
+        
+        if (isCurrentPlayer) {
             row.style.backgroundColor = '#e8f4fc';
+            row.style.fontWeight = 'bold';
         }
         
         const minutes = Math.floor(player.time / 60);
         const seconds = player.time % 60;
         const timeFormatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const difficultyText = getDifficultyText(player.difficulty || 'easy');
         
         row.innerHTML = `
             <td>${index + 1}</td>
@@ -1798,6 +1874,7 @@ function updateLeaderboardTable() {
             <td>${player.score}</td>
             <td>${player.levels}</td>
             <td>${timeFormatted}</td>
+            <td>${difficultyText}</td>
         `;
         
         leaderboardBody.appendChild(row);
@@ -1845,12 +1922,13 @@ function closeModal() {
 
 // Начать игру заново
 function playAgain() {
+    const currentDifficulty = gameState.difficulty;
     gameState.score = 0;
     gameState.level = 1;
     gameState.currentRound = 1;
     gameState.level2Round = 1;
     gameState.level3Round = 1;
-    gameState.cardsInRound = LEVEL_CONFIG.level1.baseCards; // Сбрасываем к базовому значению
+    gameState.cardsInRound = LEVEL_CONFIG.level1.baseCards;
     gameState.timeElapsed = 0;
     gameState.levelsCompleted = 0;
     gameState.gameActive = true;
@@ -1858,6 +1936,15 @@ function playAgain() {
     gameState.usedCategories.clear();
     gameState.correctAnswers = 0;
     gameState.levelCompleted = false;
+    gameState.hintsUsedLevel1.clear();
+    gameState.hintsUsedLevel3.clear();
+    gameState.penaltyPointsLevel1 = 0;
+    gameState.penaltyPointsLevel2 = 0;
+    gameState.penaltyPointsLevel3 = 0;
+    gameState.level3HintedCards.clear();
+    
+    // Сбрасываем сложность к "легкой" по умолчанию
+    gameState.difficulty = currentDifficulty;
     
     gameState.animationIntervals.forEach(interval => clearInterval(interval));
     gameState.animationIntervals = [];
@@ -1966,6 +2053,7 @@ function generateLeaderboardRows() {
         const minutes = Math.floor(player.time / 60);
         const seconds = player.time % 60;
         const timeFormatted = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        const difficultyText = getDifficultyText(player.difficulty || 'easy');
         
         rows += `
             <tr ${index < 3 ? 'class="top-' + (index + 1) + '"' : ''}>
@@ -1974,10 +2062,20 @@ function generateLeaderboardRows() {
                 <td><strong>${player.score || 0}</strong></td>
                 <td>${player.levels || 0}</td>
                 <td>${timeFormatted}</td>
-                <td>${player.date || 'Неизвестно'}</td>
+                <td>${difficultyText}</td>
             </tr>
         `;
     });
     
     return rows;
+}
+
+// Функция для получения текстового представления сложности
+function getDifficultyText(difficulty) {
+    switch(difficulty) {
+        case 'easy': return 'Лёгкий';
+        case 'medium': return 'Средний';
+        case 'hard': return 'Сложный';
+        default: return 'Лёгкий';
+    }
 }
