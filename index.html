@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Что такое слово - Игра на сортировку слов</title>
+    <link rel="stylesheet" href="game.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <!-- Экран заставки -->
+        <div id="splash-screen" class="screen active">
+            <div class="container">
+                <h1>Что такое слово</h1>
+                <p class="subtitle">Игра на сортировку и классификацию слов по разным признакам</p>
+
+                <div class="game-info">
+                    <div class="info-card">
+                        <h3>3 уровня сложности</h3>
+                        <p>Классификация, буквы, количество букв</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Система очков</h3>
+                        <p>Зарабатывайте баллы за правильные ответы</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Рейтинг игроков</h3>
+                        <p>Соревнуйтесь с другими игроками</p>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="start-auth" class="btn-primary">
+                        Начать игру
+                    </button>
+                    <button id="view-leaderboard" class="btn-secondary">
+                        Рейтинг игроков
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="auth-screen" class="screen">
+            <div class="container">
+                <h2>Вход в игру</h2>
+                <p class="subtitle">Введите ваше имя и выберите сложность, чтобы начать игру</p>
+
+                <div class="form-group">
+                    <label for="player-name">Имя игрока:</label>
+                    <input type="text" id="player-name" placeholder="Введите ваше имя" maxlength="20">
+                    <div class="error-message" id="name-error"></div>
+                </div>
+
+                <div class="difficulty-section">
+                    <h3>Выберите уровень сложности:</h3>
+                    <div class="difficulty-buttons">
+                        <button id="difficulty-easy" class="difficulty-btn easy selected">
+                            Лёгкий
+                        </button>
+                        <button id="difficulty-medium" class="difficulty-btn medium">
+                            Средний
+                        </button>
+                        <button id="difficulty-hard" class="difficulty-btn hard">
+                            Сложный
+                        </button>
+                    </div>
+                    <div class="difficulty-info" id="difficulty-info">
+                        <strong>Лёгкий:</strong> 45 сек (уровень 1), 40 сек (уровень 2), 60 сек (уровень 3)
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="back-to-splash" class="btn-secondary">
+                        Назад
+                    </button>
+                    <button id="start-game" class="btn-primary">
+                        Начать игру
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран игры -->
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <div class="player-info">
+                    <span id="current-player">Игрок: </span>
+                    <span id="current-level">Уровень: 1</span>
+                </div>
+                <div class="score-time">
+                    <span id="score">Очки: 0</span>
+                    <span id="timer">Время: 00:00</span>
+                </div>
+                <button id="end-level-btn" class="btn-secondary btn-small">
+                    <span id="end-level-text">Завершить уровень</span>
+                </button>
+            </div>
+
+            <div class="game-container">
+                <!-- Уровень 1: Классификация -->
+                <div class="level-1-container hidden">
+                    <div class="level-header">
+                        <h3 id="level-title">Уровень 1: Классификация слов</h3>
+                        <p id="level-description">Выберите все слова, которые относятся к категории:</p>
+                        <div class="target-category" id="target-category">Животные</div>
+                        <p id="level-description">Нажмите правой кнопкой мыши на карточку, чтобы увидеть слово (- 5
+                            штрафных баллов).</p>
+                    </div>
+
+                    <div class="round-info">
+                        <span>Раунд: <span id="current-round">1</span> из <span id="total-rounds">4</span></span>
+                        <span class="cards-count">Карточек: <span id="cards-count">7</span></span>
+                        <span id="round-timer-level1" class="round-timer">Время раунда: 00:40</span>
+                    </div>
+
+                    <div class="cards-container" id="cards-container-level1">
+                        <!-- Карточки будут сгенерированы динамически -->
+                    </div>
+
+                    <div class="selected-cards-info">
+                        Выбрано: <span id="selected-count">0</span> карточек
+                    </div>
+
+                    <div class="game-controls">
+                        <button id="check-level1" class="btn-primary">
+                            Проверить ответ
+                        </button>
+                        <button id="next-round-level1" class="btn-primary hidden">
+                            Следующий раунд
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Уровень 2: Слова на букву -->
+                <div class="level-2-container hidden">
+                    <div class="level-header">
+                        <h3>Уровень 2: Слова на букву</h3>
+                        <p class="level-description">Выберите слова, начинающиеся на букву:</p>
+                        <div class="target-letter" id="target-letter">А</div>
+                        <p class="level-description">Кликните по карточке, чтобы выбрать её. Двойной клик - отмена
+                            выбора (-5 очков).</p>
+                    </div>
+
+                    <div class="round-info">
+                        <span>Раунд: <span id="current-round-level2">1</span> из <span
+                                id="total-rounds-level2">5</span></span>
+                        <span class="cards-count">Карточек: <span id="cards-count-level2">8</span></span>
+                        <span id="round-timer-level2" class="round-timer">Время раунда: 00:45</span>
+                    </div>
+
+                    <div class="game-field-container">
+                        <div class="cards-container-moving" id="cards-container-level2">
+                            <!-- Анимированные карточки будут сгенерированы динамически -->
+                        </div>
+                    </div>
+
+                    <div class="selected-cards-info">
+                        Выбрано: <span id="selected-count-level2">0</span> карточек
+                    </div>
+
+                    <div class="game-controls">
+                        <button id="check-level2" class="btn-primary">
+                            Проверить ответ
+                        </button>
+                        <button id="next-round-level2" class="btn-primary hidden">
+                            Следующий раунд
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Уровень 3: Распределение по количеству букв -->
+                <div class="level-3-container hidden">
+                    <div class="level-header">
+                        <h3>Уровень 3: Распределение по количеству букв</h3>
+                        <p id="level-description">Перетащите карточки в соответствующие блоки по
+                            количеству букв.</p>
+                        <p id="level-description">Наведите на карточку после распределения мышкой, чтобы проверить
+                            правильность выбора.</p>
+                    </div>
+
+                    <div class="round-info">
+                        <span>Раунд: <span id="current-round-level3">1</span> из <span
+                                id="total-rounds-level3">5</span></span>
+                        <span class="cards-count">Карточек: <span id="cards-count-level3">10</span></span>
+                        <span id="round-timer-level3" class="round-timer">Время раунда: 01:30</span>
+                    </div>
+
+                    <div class="level-3-game-container">
+                        <!-- Контейнеры будут созданы динамически в JS -->
+                    </div>
+
+                    <div class="game-controls">
+                        <button id="check-level3" class="btn-primary">
+                            Проверить распределение
+                        </button>
+                        <button id="next-round-level3" class="btn-primary hidden">
+                            Следующий раунд
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Экран результатов -->
+        <div id="results-screen" class="screen">
+            <div class="container">
+                <h2>Результаты игры</h2>
+
+                <div class="results-summary">
+                    <div class="result-card">
+                        <h3 id="result-player">Игрок: </h3>
+                        <div class="result-item">
+                            <span class="result-label">Набранные очки:</span>
+                            <span class="result-value" id="final-score">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Пройдено уровней:</span>
+                            <span class="result-value" id="levels-completed">0</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Потраченное время:</span>
+                            <span class="result-value" id="final-time">00:00</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Сложность:</span>
+                            <span class="result-value" id="final-difficulty">Лёгкий</span>
+                        </div>
+                        <div class="result-item">
+                            <span class="result-label">Статус:</span>
+                            <span class="result-value" id="game-status">Не завершено</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="leaderboard">
+                    <h3>Таблица рекордов</h3>
+                    <div class="table-container">
+                        <table id="leaderboard-table">
+                            <thead>
+                                <tr>
+                                    <th>Место</th>
+                                    <th>Имя</th>
+                                    <th>Очки</th>
+                                    <th>Уровни</th>
+                                    <th>Время</th>
+                                    <th>Сложность</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-body">
+                                <!-- Данные рейтинга будут сгенерированы динамически -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button id="play-again" class="btn-primary">
+                        Играть снова
+                    </button>
+                    <button id="new-player" class="btn-secondary">
+                        Новый игрок
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модальное окно с результатами -->
+        <div id="result-modal" class="modal">
+            <div class="modal-content">
+                <h3 id="modal-title">Результат</h3>
+                <p id="modal-message"></p>
+                <div class="modal-score">
+                    <span>Получено очков: <span id="modal-points">0</span></span>
+                </div>
+                <button id="modal-close" class="btn-primary">Продолжить</button>
+            </div>
+        </div>
+
+        <!-- Модальное окно завершения уровня -->
+        <div id="end-level-modal" class="modal">
+            <div class="modal-content">
+                <h3 id="end-level-modal-title">Завершение уровня</h3>
+                <p id="end-level-modal-message"></p>
+                <div class="button-group" style="margin-top: 30px;">
+                    <button id="cancel-end-level" class="btn-secondary">
+                        Отмена
+                    </button>
+                    <button id="confirm-end-level" class="btn-primary">
+                        Подтвердить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <audio id="sound-win" preload="auto">
+        <source src="sounds/win.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-lose" preload="auto">
+        <source src="sounds/lose.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-timer" preload="auto">
+        <source src="sounds/timer.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-background" loop preload="auto">
+        <source src="sounds/background.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="sound-click" loop preload="auto">
+        <source src="sounds/click.mp3" type="audio/mpeg">
+    </audio>
+
+    <script src="game.js"></script>
+    
+</body>
+
+</html>
